@@ -1,12 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Hand:wght@400..700&display=swap');
 
-/* 
+body {
+    background: rgb(31, 31, 31);
+    font-family: "Edu AU VIC WA NT Hand", system-ui;
+}
 
-    You can write your own styles here...
-    
-    
-    ...Or you can use the import command to include 
-    other sylesheets into your bunde as well, e.j:
-    
-    import 'relative/path/to/stylesheet.scss';
+.todos-card {
+    font-family: "Edu AU VIC WA NT Hand", system-ui;
+    display: grid;
+    flex-direction: column;
+    width: 550px;
+    min-height: 500px;
+    background-color: white;
+    border-radius: 50px;
+    margin: auto;
+    margin-top: 50px;
+    height: 100%;
+    box-shadow: 1px 1px 24px 4px rgba(217,217,217,0.56);
+-webkit-box-shadow: 1px 1px 24px 4px rgba(217,217,217,0.56);
+-moz-box-shadow: 1px 1px 24px 4px rgba(217,217,217,0.56);
+}
 
-*/
+.task {
+    text-align: left;
+}
+
+.btn {
+    height: 35px !important;
+    align-self: center;
+    border-radius: 50% !important;
+    transition: transform 300ms ease-out !important;
+}
+
+.btn:hover {
+    transform: translate(0px, 0px) scale(1.1, 1.1) !important;
+}
+
+.body {
+    border-radius: 50px;
+    padding-bottom: 50px;
+    display: grid;
+    overflow-wrap: anywhere;
+}
+
+.footer {
+
+    align-self: end;
+    justify-self: start;
+}
+
+.header {
+    color: rgb(121, 79, 79);
+    font-size: 35px;
+}
