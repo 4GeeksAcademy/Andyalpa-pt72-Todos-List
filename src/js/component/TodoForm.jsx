@@ -1,107 +1,95 @@
 import React, { useState, useEffect } from "react";
 
+
 const TodoForm = () => {
   const [tasks, setTasks] = useState([]);
   const [task, setTask] = useState("");
   const [showDelete, setShowDelete] = useState(null);
   const [id, setId] = useState(0);
-  const [editIndex, setEditIndex] = useState(null);
+  const [addUser, setAddUser] = useState("");
 
   
   useEffect(() => {
-    fetch('https://playground.4geeks.com/todo/users/Andyalpa')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (Array.isArray(data.todos)) {
-          setTasks(data.todos);
-        } else {
-          console.error("Fetched data is not an array:", data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
+    async function checkUser() {
+      let res = await fetch('https://playground.4geeks.com/todo/users/Andyalpa')
+      let data = await res.json()
+      if(data.detail !== "User Andyalpa doesn't experiments.") {
+        setAddUser(data);
+        setTasks(data.todos)
+      } else {
+        let res = await fetch('https://playground.4geeks.com/todo/users/Andyalpa', {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+        })
+        let data = await res.json()
+        console.log(data);
+        
+      }
+    }
+    checkUser()
+  }, [])
+
+  useEffect(() => {
+    async function addTask() {
+      // updato post
+      let res = await fetch('https://playground.4geeks.com/todo/todos/Andyalpa', {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({label: task, is_done: false})
       });
-  }, []);
+      if (!res.ok) {
+        throw new Error("Network was not ok")
+      }
+      let data = await res.json();
+      setTasks([...tasks, data]);
+      setTask(""); 
+    }
+
+    if(task !== "" && task.length > 0) {
+      addTask()
+    }
+  }, [tasks])
+
+
+  
+    async function removeTaskid(id) {
+      let res = await fetch(`https://playground.4geeks.com/todo/todos/${id}`, {
+        method: "DELETE",
+        headers: { "Content-type": "application/json" }
+        });
+        if (!res.ok) {
+          throw new Error("Delete was not ok")
+        }
+        let data = await res.json()
+        setTasks(data)
+      }
+      
+    
 
  
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (task.trim() !== "") {
-      const newTask = { label: task, id: id, is_done: false };
-
-      if (editIndex !== null) {
-        const updatedTasks = tasks.map((t, index) => 
-          index === editIndex ? newTask : t
-        );
-        setTasks(updatedTasks);
-        updateTaskAPI(newTask, editIndex);
-        setEditIndex(null);
-      } else {
-        setTasks([...tasks, newTask]);
-        createTaskAPI(newTask);
-      }
+      const newTask = { label: task, id: id, is_done: false };      
+       
+      setTasks([...tasks, newTask]);
       setId(prevId => prevId + 1);
-      setTask(""); 
     }
   };
 
   const handleRemove = (index) => {
     const taskToDelete = tasks[index];
+    removeTaskid(taskToDelete.id);
     setTasks(tasks.filter((_, i) => i !== index));
-    deleteTaskAPI(taskToDelete.id);
+    
   };
 
-  const createTaskAPI = async (task) => {
-    try {
-      const response = await fetch('https://playground.4geeks.com/todo/users/Andyalpa', {
-        method: 'POST',
-        body: JSON.stringify(task),
-        headers: {
-          "Content-Type": "application/json"
-        },
-      });
 
-      if (!response.ok) {
-        const errorDetail = await response.json();
-        throw new Error(`Error ${response.status}: ${errorDetail.detail}`);
-      }
 
-      const data = await response.json();
-      console.log("Task Created:", data);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+ 
 
-  const updateTaskAPI = (task, index) => {
-    fetch(`https://playground.4geeks.com/todo/${task.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(task),
-      headers: { "Content-Type": "application/json" },
-    })
-    .then(res => res.json())
-    .then(data => console.log("Task Updated:", data))
-    .catch(error => console.error('Error updating task:', error));
-  };
-
-  const deleteTaskAPI = (taskId) => {
-    fetch(`https://playground.4geeks.com/todo/users/Andyalpa/${taskId}`, {
-      method: 'DELETE',
-    })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error("Delete Failed");
-      }
-      console.log("Task Deleted");
-    })
-    .catch((error) => console.error('Delete Error:', error));
-  };
+  
 
   return (
     <form className="todos-card" onSubmit={handleSubmit}>
@@ -118,7 +106,7 @@ const TodoForm = () => {
             className="task list-group-item"
             type="text"
           />
-          {tasks.map((task, index) => (
+           {tasks?.map((task, index) => (
             <li
               onMouseEnter={() => setShowDelete(index)}
               onMouseLeave={() => setShowDelete(null)}
@@ -135,7 +123,7 @@ const TodoForm = () => {
                 </button>
               )}
             </li>
-          ))}
+          ))} 
         </ul>
       </div>
       <div className="footer ps-5">{tasks.length} tasks left</div>
