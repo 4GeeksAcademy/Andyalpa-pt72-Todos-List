@@ -13,7 +13,7 @@ const TodoForm = () => {
     async function checkUser() {
       let res = await fetch('https://playground.4geeks.com/todo/users/Andyalpa')
       let data = await res.json()
-      if(data.detail !== "User Andyalpa doesn't experiments.") {
+      if(data.detail !== "User Andyalpa doesn't exist.") {
         setAddUser(data);
         setTasks(data.todos)
       } else {
@@ -29,8 +29,7 @@ const TodoForm = () => {
     checkUser()
   }, [])
 
-  useEffect(() => {
-    async function addTask() {
+    async function addTask(task) {
       // updato post
       let res = await fetch('https://playground.4geeks.com/todo/todos/Andyalpa', {
         method: "POST",
@@ -45,10 +44,8 @@ const TodoForm = () => {
       setTask(""); 
     }
 
-    if(task !== "" && task.length > 0) {
-      addTask()
-    }
-  }, [tasks])
+   
+  
 
 
   
@@ -71,10 +68,7 @@ const TodoForm = () => {
     e.preventDefault();
 
     if (task.trim() !== "") {
-      const newTask = { label: task, id: id, is_done: false };      
-       
-      setTasks([...tasks, newTask]);
-      setId(prevId => prevId + 1);
+      addTask(task)
     }
   };
 
