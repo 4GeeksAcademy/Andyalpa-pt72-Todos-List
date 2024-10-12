@@ -42,6 +42,7 @@ const TodoForm = () => {
       let data = await res.json();
       setTasks([...tasks, data]);
       setTask(""); 
+      console.log("new todo added:", data); 
     }
 
    
@@ -57,6 +58,11 @@ const TodoForm = () => {
         if (!res.ok) {
           throw new Error("Delete was not ok")
         }
+        if (res.status === 204) {
+          console.log("Todo deleted successfully, no content returned."); //indicates body is empty which is expected
+          return; 
+        }
+
         let data = await res.json()
         setTasks(data)
       }
@@ -72,11 +78,18 @@ const TodoForm = () => {
     }
   };
 
-  const handleRemove = (index) => {
+  const handleRemove = async (index) => {
+    if (index < 0 || index >= tasks.length) {
+      console.error("Invalid index:", index);
+      return;
+    }
     const taskToDelete = tasks[index];
-    removeTaskid(taskToDelete.id);
-    setTasks(tasks.filter((_, i) => i !== index));
-    
+    if (taskToDelete) {
+      await removeTaskid(taskToDelete.id); 
+      setTasks(tasks.filter((_, i) => i !== index));
+    } else {
+      console.error("Task not found at index:", index);
+    }
   };
 
 
@@ -102,13 +115,13 @@ const TodoForm = () => {
           />
            {tasks?.map((task, index) => (
             <li
-              onMouseEnter={() => setShowDelete(index)}
+              onMouseEnter={() => setShowDelete(task.id)}
               onMouseLeave={() => setShowDelete(null)}
               className="task list-group-item d-flex justify-content-between"
-              key={index}
+              key={task.id}
             >
               {task.label}
-              {showDelete === index && (
+              {showDelete === task.id && (
                 <button
                   className="btn btn-danger"
                   onClick={() => handleRemove(index)}
